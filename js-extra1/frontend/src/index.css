@@ -1,0 +1,200 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-50;
+}
+
+@layer components {
+  .app-shell {
+    @apply relative flex min-h-screen flex-col bg-gradient-to-br from-brand-indigo/10 via-brand-cyan/5 to-brand-purple/10 dark:from-brand-indigo/15 dark:via-brand-cyan/10 dark:to-brand-purple/15;
+  }
+
+  .container-4k {
+    @apply mx-auto w-full max-w-[1800px] px-4 sm:px-6 lg:px-8;
+  }
+
+  .glass-panel {
+    @apply rounded-2xl border border-white/20 bg-white/60 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/55;
+  }
+
+  .gradient-btn {
+    @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl px-5 py-3 font-semibold text-white shadow-glow transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo;
+    background-image: linear-gradient(120deg, #4f46e5, #06b6d4, #7c3aed);
+    background-size: 200% 200%;
+    animation: gradient-shift 6s ease infinite;
+  }
+
+  .gradient-btn::after {
+    content: "";
+    @apply absolute inset-0 -z-10 rounded-xl opacity-0 transition-opacity duration-300;
+    background-image: linear-gradient(120deg, #06b6d4, #10b981, #7c3aed);
+  }
+
+  .gradient-btn:hover::after {
+    @apply opacity-100;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-slate-300/70 bg-white/70 px-4 py-3 text-sm outline-none transition focus:border-brand-indigo focus:ring-2 focus:ring-brand-indigo/30 dark:border-slate-700 dark:bg-slate-900/80;
+  }
+
+  /* ── Modern select dropdowns ── */
+  select.field-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    @apply transition-all duration-200 hover:border-brand-indigo/50 hover:shadow-[0_0_0_3px_rgba(99,102,241,0.08)] dark:hover:border-brand-indigo/40;
+  }
+
+  select.field-input:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    @apply border-brand-indigo ring-2 ring-brand-indigo/30 shadow-[0_0_0_4px_rgba(99,102,241,0.12)];
+  }
+
+  select.field-input option {
+    @apply bg-white py-2 text-slate-800 dark:bg-slate-900 dark:text-slate-200;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-slate-900 sm:text-3xl dark:text-white;
+  }
+
+  .section-subtitle {
+    @apply text-sm text-slate-600 sm:text-base dark:text-slate-300;
+  }
+}
+
+.noise-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: radial-gradient(#ffffff 0.75px, transparent 0.75px);
+  background-size: 12px 12px;
+}
+
+.skeleton {
+  @apply relative overflow-hidden rounded-xl bg-slate-200/70 dark:bg-slate-700/40;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  animation: shimmer 1.3s infinite;
+}
+
+.learning-hub-sticky {
+  position: static;
+  width: 100%;
+}
+
+@media (min-width: 1280px) {
+  .learning-hub-sticky {
+    position: sticky;
+    top: 92px;
+    width: 100%;
+    align-self: start;
+  }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.8);
+  border-radius: 999px;
+}
+
+/* ── Revolving border button animation ── */
+@keyframes revolve-border {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.revolving-border-wrap {
+  position: relative;
+  display: inline-flex;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.revolving-border-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 0deg,
+      transparent 0%,
+      transparent 55%,
+      #ff2d78 65%,
+      #00e5ff 75%,
+      #ffe600 85%,
+      transparent 95%,
+      transparent 100%);
+  animation: revolve-border 2.4s linear infinite;
+}
+
+.dark .revolving-border-wrap::before {
+  background: conic-gradient(from 0deg,
+      transparent 0%,
+      transparent 55%,
+      #00ff88 65%,
+      #a855f7 75%,
+      #00e5ff 85%,
+      transparent 95%,
+      transparent 100%);
+}
+
+.revolving-border-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-radius: 0.75rem;
+  /* solid bg masks the spinning gradient — only the 2px gap shows as border beam */
+  background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+}
+
+.dark .revolving-border-inner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* For wrapped gradient-btn the inner doesn't need its own background — the button provides it */
+.revolving-border-inner>.gradient-btn {
+  border-radius: 0.75rem;
+}

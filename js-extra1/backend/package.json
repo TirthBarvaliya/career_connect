@@ -1,0 +1,54 @@
+{
+  "name": "career-connect-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Career connect MERN platform",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "seed": "node src/utils/seed.js",
+    "seed:demo": "node src/utils/seedDemo.js",
+    "puter:token": "node src/utils/getPuterAuthToken.js"
+  },
+  "keywords": [
+    "mern",
+    "express",
+    "mongodb",
+    "careers"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^1.44.0",
+    "@google/generative-ai": "^0.24.1",
+    "@heyputer/puter.js": "^2.2.10",
+    "axios": "^1.13.6",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "google-auth-library": "^10.6.1",
+    "helmet": "^8.0.0",
+    "jsonresume-theme-caffeine": "^1.2.3",
+    "jsonresume-theme-class": "^0.1.2",
+    "jsonresume-theme-elegant": "^1.16.1",
+    "jsonresume-theme-even": "^0.26.1",
+    "jsonresume-theme-flat": "^0.3.7",
+    "jsonresume-theme-kendall": "^0.2.0",
+    "jsonresume-theme-onepage": "^0.0.3",
+    "jsonresume-theme-paper": "^0.5.0",
+    "jsonresume-theme-short": "^0.1.7",
+    "jsonresume-theme-slick": "^0.1.16",
+    "jsonresume-theme-spartan": "^0.3.0",
+    "jsonresume-theme-stackoverflow": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.11.0",
+    "morgan": "^1.10.0",
+    "nodemailer": "^8.0.1",
+    "pdf-parse": "^2.4.5",
+    "puppeteer": "^24.38.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
