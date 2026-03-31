@@ -157,18 +157,20 @@ const SignupPage = () => {
   };
 
   /* ── Google Sign-In (direct from signup page) ── */
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "9502897586-lie04l7cjlqmp1rp2u99ks39fhu7rp1u.apps.googleusercontent.com";
   const googleBtnContainerRef = useRef(null);
 
   useEffect(() => {
     if (!googleClientId || googleData) return;
 
     const initGoogle = () => {
-      if (window.google?.accounts?.id && googleBtnContainerRef.current) {
+      if (!window.google?.accounts?.id || !googleBtnContainerRef.current) return false;
+      try {
         window.google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleGoogleSignupResponse,
-          ux_mode: "popup"
+          ux_mode: "popup",
+          use_fedcm_for_prompt: false
         });
         window.google.accounts.id.renderButton(googleBtnContainerRef.current, {
           type: "standard",
@@ -177,6 +179,10 @@ const SignupPage = () => {
           width: 400,
           text: "signup_with"
         });
+        return true;
+      } catch (err) {
+        console.error("[Google Sign-Up] Init failed:", err);
+        return false;
       }
     };
 
@@ -185,11 +191,32 @@ const SignupPage = () => {
       return;
     }
 
+    // Don't add duplicate script tags
+    const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (existingScript) {
+      const pollInterval = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(pollInterval);
+          initGoogle();
+        }
+      }, 200);
+      const pollTimeout = setTimeout(() => clearInterval(pollInterval), 10000);
+      return () => { clearInterval(pollInterval); clearTimeout(pollTimeout); };
+    }
+
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
-    script.onload = initGoogle;
+    script.onload = () => {
+      let attempts = 0;
+      const tryInit = () => {
+        if (initGoogle()) return;
+        if (++attempts < 10) setTimeout(tryInit, 300);
+      };
+      tryInit();
+    };
+    script.onerror = () => console.error("[Google Sign-Up] Failed to load GSI script");
     document.head.appendChild(script);
     return () => {
       try { document.head.removeChild(script); } catch { }
