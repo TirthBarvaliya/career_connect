@@ -22,30 +22,54 @@ import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
-app.use(helmet());
-const allowedOrigins = [config.clientUrl, "http://localhost:5173", "http://127.0.0.1:5173"];
+// --- Helmet: relax cross-origin restrictions for API ---
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
+  })
+);
+
+// --- CORS: allow Vercel frontend + localhost dev origins ---
+const allowedOrigins = [
+  ...(config.clientUrl ? config.clientUrl.split(",").map((u) => u.trim()) : []),
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5173",
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
+      // Allow any localhost origin for development
       try {
         const parsed = new URL(origin);
-        const isLocalhost =
-          (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") &&
-          (parsed.protocol === "http:" || parsed.protocol === "https:");
-        if (isLocalhost) {
+        if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
           return callback(null, true);
         }
       } catch {
-        // Ignore parse errors and reject origin below.
+        // Ignore parse errors
       }
-      return callback(new Error("CORS origin not allowed"));
+
+      console.error(`CORS blocked origin: ${origin}`);
+      return callback(new Error(`CORS origin not allowed: ${origin}`));
     },
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
+
+// Handle preflight requests explicitly
+app.options("*", cors());
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 if (config.env !== "production") {
