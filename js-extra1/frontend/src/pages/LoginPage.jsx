@@ -406,14 +406,16 @@ const LoginPage = () => {
                 <div className="h-px flex-1 bg-slate-300/60 dark:bg-slate-700" />
               </div>
 
-              {/* Google Sign-In — show Google's real button */}
-              <div className="flex w-full items-center justify-center">
-                <div
-                  ref={googleBtnContainerRef}
-                  className="flex w-full items-center justify-center rounded-xl"
-                  style={{ minHeight: 44 }}
-                />
-              </div>
+              {/* Google Sign-In — real button with animation wrapper */}
+              <RevolvingBorderButton className="w-full">
+                <div className="flex w-full items-center justify-center rounded-xl border border-slate-300/70 bg-white/80 px-4 py-1 transition hover:-translate-y-0.5 hover:shadow-soft dark:border-slate-700 dark:bg-slate-900/80">
+                  <div
+                    ref={googleBtnContainerRef}
+                    className="flex w-full items-center justify-center"
+                    style={{ minHeight: 44 }}
+                  />
+                </div>
+              </RevolvingBorderButton>
               {!googleClientId && (
                 <p className="text-center text-xs text-slate-400">Google Sign-In is not configured.</p>
               )}
