@@ -255,7 +255,7 @@ const LandingPage = () => {
             <h1 className="font-poppins text-4xl font-bold leading-tight text-slate-900 sm:text-5xl xl:text-6xl dark:text-white">
               One Platform To{" "}
               <span className="bg-gradient-to-r from-brand-indigo via-brand-cyan to-brand-purple bg-clip-text text-transparent">
-                Guide Areers
+                Guide Careers
               </span>{" "}
               And <TypingHeadline phrases={["match top jobs", "unlock milestones", "accelerate hiring"]} />
             </h1>
