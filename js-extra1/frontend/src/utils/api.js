@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:6001/api",
-  timeout: 12000
+  baseURL: import.meta.env.VITE_API_BASE_URL || "https://career-connect-backend-d4bgh3d5b5d6cdhy.centralindia-01.azurewebsites.net/api",
+  timeout: 15000
 });
 
 apiClient.interceptors.request.use((config) => {
