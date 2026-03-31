@@ -368,38 +368,7 @@ const LoginPage = () => {
                 </RevolvingBorderButton>
               </form>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <RevolvingBorderButton className="w-full">
-                  <button
-                    type="button"
-                    disabled={isBusy}
-                    onClick={() => handleDemoLogin(USER_ROLES.JOB_SEEKER)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300/70 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
-                  >
-                    {demoRoleLoading === USER_ROLES.JOB_SEEKER ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <LogIn size={16} />
-                    )}
-                    {demoRoleLoading === USER_ROLES.JOB_SEEKER ? "Signing in..." : "Demo Job Seeker Login"}
-                  </button>
-                </RevolvingBorderButton>
-                <RevolvingBorderButton className="w-full">
-                  <button
-                    type="button"
-                    disabled={isBusy}
-                    onClick={() => handleDemoLogin(USER_ROLES.RECRUITER)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300/70 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
-                  >
-                    {demoRoleLoading === USER_ROLES.RECRUITER ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <LogIn size={16} />
-                    )}
-                    {demoRoleLoading === USER_ROLES.RECRUITER ? "Signing in..." : "Demo Recruiter Login"}
-                  </button>
-                </RevolvingBorderButton>
-              </div>
+      
 
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-slate-300/60 dark:bg-slate-700" />
