@@ -252,7 +252,7 @@ const LandingPage = () => {
               New era of career growth
             </motion.span>
 
-            <h1 className="font-poppins text-4xl font-bold leading-tight text-slate-900 sm:text-5xl xl:text-6xl dark:text-white">
+            <h1 className="font-poppins text-[2rem] font-bold leading-tight text-slate-900 sm:text-5xl xl:text-6xl dark:text-white">
               One Platform To{" "}
               <span className="bg-gradient-to-r from-brand-indigo via-brand-cyan to-brand-purple bg-clip-text text-transparent">
                 Guide Careers
@@ -263,17 +263,19 @@ const LandingPage = () => {
               Career connect helps job seekers and recruiters navigate skill growth, job discovery, hiring pipelines, and analytics with a vibrant modern experience.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <RevolvingBorderButton>
-                <GradientButton onClick={() => navigate(joinTarget)}>
-                  {isAuthenticated ? "Go to Dashboard" : "Get Started"}
-                  <ArrowRight size={15} className="ml-2" />
-                </GradientButton>
-              </RevolvingBorderButton>
+            <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+              <div className="w-full sm:w-auto">
+                <RevolvingBorderButton className="w-full">
+                  <GradientButton className="w-full" onClick={() => navigate(joinTarget)}>
+                    {isAuthenticated ? "Go to Dashboard" : "Get Started"}
+                    <ArrowRight size={15} className="ml-2 inline-block" />
+                  </GradientButton>
+                </RevolvingBorderButton>
+              </div>
               <button
                 type="button"
                 onClick={() => navigate(ROUTES.JOBS)}
-                className="rounded-xl border border-slate-300/70 bg-white/75 px-5 py-3 font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:shadow-soft dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
+                className="w-full sm:w-auto rounded-xl border border-slate-300/70 bg-white/75 px-5 py-3 font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:shadow-soft dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
               >
                 Explore Jobs
               </button>

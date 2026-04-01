@@ -176,7 +176,7 @@ const SignupPage = () => {
           type: "standard",
           theme: "outline",
           size: "large",
-          width: 400,
+          width: Math.min(400, Math.max(200, window.innerWidth - 64)),
           text: "signup_with"
         });
         return true;

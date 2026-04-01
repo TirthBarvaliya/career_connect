@@ -137,7 +137,7 @@ const LoginPage = () => {
           type: "standard",
           theme: "outline",
           size: "large",
-          width: 400,
+          width: Math.min(400, Math.max(200, window.innerWidth - 64)),
           text: "signin_with"
         });
         return true;
