@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "https://career-connect-backend-d4bgh3d5b5d6cdhy.centralindia-01.azurewebsites.net/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
   timeout: 15000
 });
 
