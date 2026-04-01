@@ -157,7 +157,7 @@ const SignupPage = () => {
   };
 
   /* ── Google Sign-In (direct from signup page) ── */
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "9502897586-lie04l7cjlqmp1rp2u99ks39fhu7rp1u.apps.googleusercontent.com";
   const googleBtnContainerRef = useRef(null);
 
   useEffect(() => {

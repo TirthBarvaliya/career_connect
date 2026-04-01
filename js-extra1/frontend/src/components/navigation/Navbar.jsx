@@ -186,14 +186,17 @@ const Navbar = () => {
           )}
         </div>
 
-        <button
-          type="button"
-          className="rounded-xl border border-white/20 bg-white/[0.08] p-2 text-slate-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 lg:hidden"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="rounded-xl border border-white/20 bg-white/[0.08] p-2 text-slate-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200"
+            onClick={() => setOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
