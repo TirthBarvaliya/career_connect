@@ -695,16 +695,19 @@ const SignupPage = () => {
                     <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Or</span>
                     <div className="h-px flex-1 bg-slate-300/60 dark:bg-slate-700" />
                   </div>
-                  {/* Google Sign-Up — real button with animation wrapper */}
-                  <RevolvingBorderButton className="w-full">
-                    <div className="flex w-full overflow-hidden items-center justify-center rounded-xl border border-slate-300/70 bg-white/80 px-1 py-1 transition hover:-translate-y-0.5 hover:shadow-soft dark:border-slate-700 dark:bg-slate-900/80">
+                  {/* Google Sign-Up — real button perfectly hugged by border */}
+                  <div className="flex w-full justify-center">
+                    <RevolvingBorderButton 
+                      className="w-fit !rounded-[6px] transition hover:-translate-y-0.5 hover:shadow-soft" 
+                      innerClassName="w-fit flex items-center justify-center !rounded-[4px] !bg-white dark:!bg-[#131314] overflow-hidden"
+                    >
                       <div
                         ref={googleBtnContainerRef}
-                        className="flex w-full overflow-hidden items-center justify-center"
-                        style={{ minHeight: 44 }}
+                        className="flex items-center justify-center"
+                        style={{ minHeight: 40 }}
                       />
-                    </div>
-                  </RevolvingBorderButton>
+                    </RevolvingBorderButton>
+                  </div>
                 </>
               )}
 
