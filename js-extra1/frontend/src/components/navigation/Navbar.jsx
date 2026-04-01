@@ -108,12 +108,12 @@ const Navbar = () => {
           <div className="relative">
             <AnimatedBrandLogo />
           </div>
-          <div className="relative hidden leading-tight sm:block" onMouseEnter={() => setTitleAnimationKey((prev) => prev + 1)}>
-            <p className="font-poppins text-base font-semibold text-slate-900 sm:text-lg dark:text-white">
+          <div className="relative leading-tight" onMouseEnter={() => setTitleAnimationKey((prev) => prev + 1)}>
+            <p className="font-poppins text-sm font-semibold text-slate-900 sm:text-lg dark:text-white">
               <AnimatedBrandText animationKey={titleAnimationKey} />
             </p>
             <motion.p
-              className="text-xs text-slate-500 dark:text-slate-400"
+              className="text-[10px] text-slate-500 sm:text-xs dark:text-slate-400"
               animate={{ opacity: [0.65, 1, 0.65] }}
               transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
             >
