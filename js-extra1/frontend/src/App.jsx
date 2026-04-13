@@ -10,6 +10,7 @@ import ProtectedRoute from "./features/auth/ProtectedRoute";
 import ToastContainer from "./components/common/ToastContainer";
 import LoadingSkeleton from "./components/common/LoadingSkeleton";
 import CareerChatbot from "./components/common/CareerChatbot";
+import Sidebar from "./components/navigation/Sidebar";
 import { ROUTES, USER_ROLES } from "./utils/constants";
 import apiClient from "./utils/api";
 import { setUser, logout } from "./redux/slices/authSlice";
@@ -289,6 +290,10 @@ const App = () => {
           </motion.div>
         </AnimatePresence>
       </Suspense>
+      {/* Global Workspace Sidebar — available on every page when authenticated (not admin) */}
+      {isAuthenticated && user?.role !== USER_ROLES.ADMIN && (
+        <Sidebar role={user?.role} />
+      )}
       {location.pathname !== ROUTES.LOGIN && location.pathname !== ROUTES.SIGNUP && <CareerChatbot />}
       <ToastContainer />
     </>

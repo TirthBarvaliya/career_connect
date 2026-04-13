@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ThemeToggle from "../common/ThemeToggle";
 import GradientButton from "../common/GradientButton";
 import { logout } from "../../redux/slices/authSlice";
+import { setSidebarOpen } from "../../redux/slices/uiSlice";
 import { ROUTES } from "../../utils/constants";
 
 const defaultLinks = [
@@ -156,6 +157,7 @@ const Navbar = () => {
           ))}
         </nav>
 
+        {/* Desktop: right-side actions */}
         <div className="hidden items-center gap-3 lg:flex">
           <ThemeToggle />
           {!isAuthenticated && (
@@ -165,6 +167,15 @@ const Navbar = () => {
           )}
           {isAuthenticated && (
             <>
+              {/* Workspace sidebar trigger — available on every page */}
+              <button
+                type="button"
+                aria-label="Open workspace menu"
+                className="rounded-xl border border-white/20 bg-white/[0.08] p-2 text-slate-700 backdrop-blur-sm transition hover:border-brand-indigo/40 hover:bg-white/[0.12] hover:text-brand-indigo dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-cyan-500/30"
+                onClick={() => dispatch(setSidebarOpen(true))}
+              >
+                <Menu size={18} />
+              </button>
               <button
                 type="button"
                 className="rounded-xl border border-white/20 bg-white/[0.08] px-4 py-2 text-sm font-medium text-slate-700 backdrop-blur-sm transition hover:border-brand-indigo/40 hover:bg-white/[0.12] hover:text-brand-indigo dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-cyan-500/30"
@@ -186,15 +197,22 @@ const Navbar = () => {
           )}
         </div>
 
+        {/* Mobile: hamburger — opens workspace sidebar when logged in, mobile nav dropdown when not */}
         <div className="flex items-center gap-2 lg:hidden">
           <ThemeToggle />
           <button
             type="button"
             className="rounded-xl border border-white/20 bg-white/[0.08] p-2 text-slate-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200"
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => {
+              if (isAuthenticated) {
+                dispatch(setSidebarOpen(true));
+              } else {
+                setOpen((prev) => !prev);
+              }
+            }}
             aria-label="Toggle menu"
           >
-            {open ? <X size={18} /> : <Menu size={18} />}
+            {!isAuthenticated && open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
