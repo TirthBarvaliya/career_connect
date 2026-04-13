@@ -61,38 +61,65 @@ IMPORTANT RULES:
 - If unsure, lean towards LOW confidence, not hard rejection`;
 
 /**
- * Call Gemini API helper
+ * Call Gemini API helper — with retry + exponential backoff
+ * Retries up to MAX_RETRIES times on 429 / 503 (rate-limit / overload).
  */
+const MAX_RETRIES = 3;
+const INITIAL_DELAY_MS = 2000; // 2 seconds
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const callGemini = async (apiKey, prompt, userText) => {
-  const response = await axios.post(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    {
-      contents: [
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
-          role: "user",
-          parts: [{ text: `${prompt}\n\n${userText}` }]
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `${prompt}\n\n${userText}` }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            responseMimeType: "application/json"
+          }
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+          timeout: 60000 // 60s timeout per request
         }
-      ],
-      generationConfig: {
-        temperature: 0.8,
-        responseMimeType: "application/json"
+      );
+
+      let rawResponse = response.data.candidates[0].content.parts[0].text.trim();
+
+      // Safety cleanup in case model wraps in markdown
+      if (rawResponse.startsWith("```json")) {
+        rawResponse = rawResponse.replace(/^```json/, "").replace(/```$/, "").trim();
+      } else if (rawResponse.startsWith("```")) {
+        rawResponse = rawResponse.replace(/^```/, "").replace(/```$/, "").trim();
       }
-    },
-    {
-      headers: { "Content-Type": "application/json" }
+
+      return JSON.parse(rawResponse);
+    } catch (err) {
+      lastError = err;
+      const status = err.response?.status;
+      const isRetryable = status === 429 || status === 503 || status === 500;
+
+      if (isRetryable && attempt < MAX_RETRIES) {
+        const delay = INITIAL_DELAY_MS * Math.pow(2, attempt - 1); // 2s, 4s, 8s
+        console.warn(`Gemini API ${status} on attempt ${attempt}/${MAX_RETRIES}. Retrying in ${delay}ms...`);
+        await sleep(delay);
+      } else {
+        throw err; // Non-retryable error or exhausted retries
+      }
     }
-  );
-
-  let rawResponse = response.data.candidates[0].content.parts[0].text.trim();
-
-  // Safety cleanup in case model wraps in markdown
-  if (rawResponse.startsWith("```json")) {
-    rawResponse = rawResponse.replace(/^```json/, "").replace(/```$/, "").trim();
-  } else if (rawResponse.startsWith("```")) {
-    rawResponse = rawResponse.replace(/^```/, "").replace(/```$/, "").trim();
   }
 
-  return JSON.parse(rawResponse);
+  throw lastError;
 };
 
 /* ───────────────────────────────────────────────────────
@@ -224,9 +251,18 @@ export const atsCheck = async (req, res) => {
 
   } catch (error) {
     console.error("ATS Check Error:", error.response?.data || error.message || error);
-    const detailedMessage = error.response?.data?.error?.message
-      || error.message
-      || "An error occurred during ATS analysis. Please try again.";
+
+    const status = error.response?.status;
+    const apiMessage = error.response?.data?.error?.message || error.message || "";
+
+    // Detect Gemini rate-limit / overload errors and provide a friendly message
+    if (status === 429 || status === 503 || apiMessage.includes("high demand") || apiMessage.includes("overloaded")) {
+      return res.status(503).json({
+        message: "Our AI service is temporarily busy. Please wait 10-15 seconds and try again — it usually resolves quickly!"
+      });
+    }
+
+    const detailedMessage = apiMessage || "An error occurred during ATS analysis. Please try again.";
     res.status(500).json({ message: detailedMessage });
   }
 };
