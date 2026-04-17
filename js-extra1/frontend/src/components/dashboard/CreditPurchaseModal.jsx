@@ -168,7 +168,7 @@ const CreditPurchaseModal = ({ isOpen, onClose, onPurchaseComplete }) => {
             className={`mx-auto w-full overflow-hidden ${
               step === "plans"
                 ? "my-4 max-w-5xl rounded-2xl border border-slate-200/70 bg-white/90 shadow-2xl backdrop-blur-xl dark:border-slate-700/50 dark:bg-[#0a0a14]"
-                : "my-8 max-w-2xl w-full rounded-2xl border border-slate-200/70 bg-white shadow-2xl dark:border-slate-700/50 dark:bg-slate-900"
+                : "my-8 max-w-2xl w-full rounded-2xl border border-slate-200/70 bg-white/90 shadow-2xl backdrop-blur-xl dark:border-slate-700/50 dark:bg-[#0a0a14]"
             }`}
             onClick={(e) => e.stopPropagation()}
             onAnimationComplete={() => { if (step === "plans") fetchPlans(); }}
@@ -290,22 +290,35 @@ const CreditPurchaseModal = ({ isOpen, onClose, onPurchaseComplete }) => {
               </div>
             )}
 
-            {/* ═══════════ OTHER STEPS — Professional Standard Theme ═══════════ */}
-            {step !== "plans" && (
-              <div className="p-5 sm:p-6">
+            {/* ═══════════ PAYMENT / PROCESSING / SUCCESS — Luxury Dark ═══════════ */}
+            {step !== "plans" && (() => {
+              const accent = planAccentColors[selectedPlan?.id] || planAccentColors.basic;
+              const Icon = PLAN_ICONS[selectedPlan?.id] || Zap;
+              return (
+              <div className="relative overflow-hidden px-5 py-6 sm:px-8">
+                {/* Background gradients — matching Plans step */}
+                <div
+                  className="pointer-events-none absolute -left-1/3 -top-1/3 h-2/3 w-2/3 rounded-full opacity-20 blur-[100px] dark:opacity-30"
+                  style={{ background: `radial-gradient(circle, ${accent.text} 0%, #6366f1 40%, transparent 70%)` }}
+                />
+                <div
+                  className="pointer-events-none absolute -bottom-1/4 -right-1/4 h-1/2 w-1/2 rounded-full opacity-15 blur-[100px] dark:opacity-20"
+                  style={{ background: "radial-gradient(circle, #ec4899 0%, #be185d 40%, transparent 70%)" }}
+                />
+
                 {/* Header */}
-                <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-3">
+                <div className="relative z-10 mb-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
                     {step === "payment" && (
                       <button
                         type="button"
                         onClick={() => { setStep("plans"); setError(""); }}
-                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                        className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white dark:text-white/40 dark:hover:text-white"
                       >
                         <ArrowLeft size={18} />
                       </button>
                     )}
-                    <h3 className="pr-2 text-lg font-semibold text-slate-900 dark:text-white">
+                    <h3 className="text-lg font-semibold tracking-wide text-slate-800 dark:text-white/90">
                       {step === "payment" && "Complete Payment"}
                       {step === "processing" && "Processing Payment"}
                       {step === "success" && "Payment Successful!"}
@@ -314,7 +327,7 @@ const CreditPurchaseModal = ({ isOpen, onClose, onPurchaseComplete }) => {
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                    className="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-400 transition hover:bg-white/10 hover:text-white dark:text-white/40 dark:hover:text-white"
                   >
                     <X size={18} />
                   </button>
@@ -322,184 +335,239 @@ const CreditPurchaseModal = ({ isOpen, onClose, onPurchaseComplete }) => {
 
                 {/* Error banner */}
                 {error && (
-                  <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300">
+                  <div className="relative z-10 mb-4 flex items-center gap-2 rounded-lg border border-rose-300/40 bg-rose-500/10 px-4 py-2.5 text-sm text-rose-600 dark:border-rose-500/20 dark:text-rose-300">
                     <AlertCircle size={16} className="shrink-0" />
                     {error}
                   </div>
                 )}
 
-              {/* Step 2: Payment */}
-              {step === "payment" && selectedPlan && (
-                <div className="space-y-4">
-                  {/* Order summary */}
-                  <div className="rounded-xl border border-slate-200/70 bg-slate-50/80 p-3 sm:p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-medium text-slate-700 dark:text-slate-200">{selectedPlan.label}</span>
-                      <span className="text-lg font-bold text-slate-900 dark:text-white">₹{selectedPlan.price}</span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{selectedPlan.credits} credits will be added to your account</p>
-                  </div>
-
-                  {/* Payment method tabs */}
-                  <div className="grid grid-cols-1 gap-1 rounded-xl bg-slate-100 p-1 sm:grid-cols-3 dark:bg-slate-800/80">
-                    {[
-                      { id: "upi", label: "UPI", icon: Smartphone },
-                      { id: "card", label: "Card", icon: CreditCard },
-                      { id: "netbanking", label: "Net Banking", icon: Building2 }
-                    ].map((method) => (
-                      <button
-                        key={method.id}
-                        type="button"
-                        onClick={() => { setPaymentMethod(method.id); setError(""); }}
-                        className={`flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                          paymentMethod === method.id
-                            ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white"
-                            : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-                        }`}
+                {/* Step 2: Payment */}
+                {step === "payment" && selectedPlan && (
+                  <div className="relative z-10 space-y-5">
+                    {/* Order summary card */}
+                    <div
+                      className="flex items-center gap-4 rounded-xl border p-4"
+                      style={{
+                        borderColor: accent.border,
+                        backgroundColor: `${accent.text}08`,
+                        boxShadow: `inset 0 1px 0 0 ${accent.border}`
+                      }}
+                    >
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                        style={{ backgroundColor: `${accent.text}18` }}
                       >
-                        <method.icon size={14} />
-                        {method.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* UPI form */}
-                  {paymentMethod === "upi" && (
-                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">UPI ID</label>
-                      <input
-                        type="text"
-                        value={upiId}
-                        onChange={(e) => setUpiId(e.target.value)}
-                        placeholder="yourname@upi"
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-brand-cyan dark:focus:ring-brand-cyan"
-                      />
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Example: name@paytm, name@ybl, name@oksbi</p>
+                        <Icon size={20} style={{ color: accent.text }} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-800 dark:text-white">{selectedPlan.label}</p>
+                        <p className="text-xs text-slate-500 dark:text-white/40">{selectedPlan.credits} credits will be added to your account</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-xl font-bold text-slate-900 dark:text-white">₹{selectedPlan.price}</p>
+                      </div>
                     </div>
-                  )}
 
-                  {/* Card form */}
-                  {paymentMethod === "card" && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Card Number</label>
+                    {/* Payment method tabs */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: "upi", label: "UPI", icon: Smartphone },
+                        { id: "card", label: "Card", icon: CreditCard },
+                        { id: "netbanking", label: "Net Banking", icon: Building2 }
+                      ].map((method) => {
+                        const isActive = paymentMethod === method.id;
+                        return (
+                          <button
+                            key={method.id}
+                            type="button"
+                            onClick={() => { setPaymentMethod(method.id); setError(""); }}
+                            className="relative flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all duration-200"
+                            style={{
+                              borderColor: isActive ? accent.border : "rgba(100,116,139,0.15)",
+                              backgroundColor: isActive ? `${accent.text}12` : "rgba(100,116,139,0.04)",
+                              color: isActive ? accent.text : undefined,
+                              boxShadow: isActive ? `0 0 16px ${accent.glow}` : "none"
+                            }}
+                          >
+                            <method.icon size={14} className={!isActive ? "text-slate-400 dark:text-white/30" : undefined} />
+                            <span className={!isActive ? "text-slate-500 dark:text-white/50" : undefined}>{method.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* UPI form */}
+                    {paymentMethod === "upi" && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-white/60">UPI ID</label>
                         <input
                           type="text"
-                          value={cardNumber}
-                          onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                          placeholder="4242 4242 4242 4242"
-                          maxLength={19}
-                          className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-brand-cyan dark:focus:ring-brand-cyan"
+                          value={upiId}
+                          onChange={(e) => setUpiId(e.target.value)}
+                          placeholder="yourname@upi"
+                          className="w-full rounded-xl border border-slate-300/50 bg-white/80 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-transparent focus:outline-none focus:ring-2 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-white/25"
+                          style={{ "--tw-ring-color": accent.text }}
                         />
+                        <p className="text-[11px] text-slate-400 dark:text-white/30">Example: name@paytm, name@ybl, name@oksbi</p>
                       </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
+                    )}
+
+                    {/* Card form */}
+                    {paymentMethod === "card" && (
+                      <div className="space-y-3">
                         <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Expiry</label>
+                          <label className="block text-sm font-medium text-slate-700 dark:text-white/60">Card Number</label>
                           <input
                             type="text"
-                            value={cardExpiry}
-                            onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
-                            placeholder="MM/YY"
-                            maxLength={5}
-                            className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-brand-cyan dark:focus:ring-brand-cyan"
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                            placeholder="4242 4242 4242 4242"
+                            maxLength={19}
+                            className="mt-1 w-full rounded-xl border border-slate-300/50 bg-white/80 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-transparent focus:outline-none focus:ring-2 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-white/25"
+                            style={{ "--tw-ring-color": accent.text }}
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">CVV</label>
-                          <input
-                            type="password"
-                            value={cardCvv}
-                            onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                            placeholder="•••"
-                            maxLength={4}
-                            className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 transition focus:border-brand-indigo focus:outline-none focus:ring-1 focus:ring-brand-indigo dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:focus:border-brand-cyan dark:focus:ring-brand-cyan"
-                          />
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-white/60">Expiry</label>
+                            <input
+                              type="text"
+                              value={cardExpiry}
+                              onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                              placeholder="MM/YY"
+                              maxLength={5}
+                              className="mt-1 w-full rounded-xl border border-slate-300/50 bg-white/80 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-transparent focus:outline-none focus:ring-2 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-white/25"
+                              style={{ "--tw-ring-color": accent.text }}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-white/60">CVV</label>
+                            <input
+                              type="password"
+                              value={cardCvv}
+                              onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              placeholder="•••"
+                              maxLength={4}
+                              className="mt-1 w-full rounded-xl border border-slate-300/50 bg-white/80 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-transparent focus:outline-none focus:ring-2 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-white/25"
+                              style={{ "--tw-ring-color": accent.text }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Net Banking form */}
-                  {paymentMethod === "netbanking" && (
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Select Bank</label>
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        {BANKS.map((bank) => (
-                          <button
-                            key={bank.code}
-                            type="button"
-                            onClick={() => { setBankCode(bank.code); setError(""); }}
-                            className={`rounded-lg border px-3 py-2.5 text-left text-sm transition ${
-                              bankCode === bank.code
-                                ? "border-brand-indigo bg-brand-indigo/10 font-semibold text-brand-indigo dark:border-cyan-400 dark:bg-cyan-900/30 dark:text-cyan-400"
-                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                            }`}
-                          >
-                            {bank.label}
-                          </button>
-                        ))}
+                    {/* Net Banking form */}
+                    {paymentMethod === "netbanking" && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-white/60">Select Bank</label>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {BANKS.map((bank) => {
+                            const isSelected = bankCode === bank.code;
+                            return (
+                              <button
+                                key={bank.code}
+                                type="button"
+                                onClick={() => { setBankCode(bank.code); setError(""); }}
+                                className="rounded-xl border px-3 py-2.5 text-left text-sm transition-all duration-200"
+                                style={{
+                                  borderColor: isSelected ? accent.border : "rgba(100,116,139,0.15)",
+                                  backgroundColor: isSelected ? `${accent.text}12` : "rgba(100,116,139,0.04)",
+                                  color: isSelected ? accent.text : undefined,
+                                  fontWeight: isSelected ? 600 : 400,
+                                  boxShadow: isSelected ? `0 0 12px ${accent.glow}` : "none"
+                                }}
+                              >
+                                <span className={!isSelected ? "text-slate-600 dark:text-white/50" : undefined}>{bank.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pay button */}
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={handlePay}
+                        className="w-full overflow-hidden rounded-xl py-3 text-sm font-bold tracking-wide text-white transition-all duration-300 hover:brightness-110"
+                        style={{
+                          background: `linear-gradient(135deg, ${accent.text}, #8b5cf6, ${accent.text})`,
+                          backgroundSize: "200% 200%",
+                          boxShadow: `0 4px 24px ${accent.glow}`
+                        }}
+                      >
+                        Pay ₹{selectedPlan.price}
+                      </button>
+                      <p className="mt-2.5 text-center text-[10px] font-light tracking-wider text-slate-400 dark:text-white/25">
+                        This is a simulated payment for demo purposes
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Processing */}
+                {step === "processing" && (
+                  <div className="relative z-10 flex flex-col items-center justify-center py-14">
+                    <div className="relative">
+                      <div
+                        className="absolute inset-0 animate-ping rounded-full opacity-20"
+                        style={{ backgroundColor: accent.text }}
+                      />
+                      <Loader2 size={44} className="animate-spin" style={{ color: accent.text }} />
+                    </div>
+                    <p className="mt-5 text-sm font-medium text-slate-700 dark:text-white/80">Processing your payment...</p>
+                    <p className="mt-1 text-xs text-slate-400 dark:text-white/30">Please do not close this window</p>
+                  </div>
+                )}
+
+                {/* Step 4: Success */}
+                {step === "success" && purchaseResult && (
+                  <div className="relative z-10 flex flex-col items-center py-6">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                      <div className="relative">
+                        <div className="absolute inset-0 animate-pulse rounded-full bg-emerald-500/20 blur-xl" />
+                        <CheckCircle2 size={56} className="relative text-emerald-400" />
+                      </div>
+                    </motion.div>
+                    <h4 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Payment Successful!</h4>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-white/40">{purchaseResult.message}</p>
+
+                    <div
+                      className="mt-6 w-full max-w-xs rounded-xl border p-4"
+                      style={{ borderColor: "rgba(16,185,129,0.25)", backgroundColor: "rgba(16,185,129,0.06)" }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-slate-600 dark:text-white/50">Credits Added</span>
+                        <span className="text-lg font-bold text-emerald-500">+{purchaseResult.transaction?.amount || 0}</span>
+                      </div>
+                      <div className="mt-2 h-px w-full bg-emerald-500/10" />
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-sm text-slate-600 dark:text-white/50">Total Balance</span>
+                        <span className="text-lg font-bold text-slate-900 dark:text-white">{purchaseResult.credits}</span>
                       </div>
                     </div>
-                  )}
 
-                  {/* Pay button */}
-                  <div className="pt-2">
                     <button
                       type="button"
-                      onClick={handlePay}
-                      className="w-full rounded-lg bg-gradient-to-r from-brand-indigo to-brand-cyan px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:shadow-lg hover:brightness-110"
+                      onClick={handleClose}
+                      className="mt-6 w-full max-w-xs overflow-hidden rounded-xl py-2.5 text-sm font-bold tracking-wide text-white transition-all duration-300 hover:brightness-110"
+                      style={{
+                        background: "linear-gradient(135deg, #10b981, #059669)",
+                        boxShadow: "0 4px 20px rgba(16,185,129,0.25)"
+                      }}
                     >
-                      Pay ₹{selectedPlan.price}
+                      Done
                     </button>
-                    <p className="mt-2 text-center text-[10px] text-slate-400 dark:text-slate-500">This is a simulated payment for demo purposes</p>
                   </div>
-                </div>
-              )}
-
-              {/* Step 3: Processing */}
-              {step === "processing" && (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <Loader2 size={40} className="animate-spin text-brand-indigo dark:text-brand-cyan" />
-                  <p className="mt-4 text-sm font-medium text-slate-700 dark:text-slate-200">Processing your payment...</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Please do not close this window</p>
-                </div>
-              )}
-
-              {/* Step 4: Success */}
-              {step === "success" && purchaseResult && (
-                <div className="flex flex-col items-center py-6">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                  >
-                    <CheckCircle2 size={56} className="text-emerald-500" />
-                  </motion.div>
-                  <h4 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Payment Successful!</h4>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{purchaseResult.message}</p>
-
-                  <div className="mt-6 w-full max-w-xs rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800/50 dark:bg-emerald-900/30">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-700 dark:text-slate-300">Credits Added</span>
-                      <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{purchaseResult.transaction?.amount || 0}</span>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-sm text-slate-700 dark:text-slate-300">Total Balance</span>
-                      <span className="text-lg font-bold text-slate-900 dark:text-white">{purchaseResult.credits}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="mt-6 w-full max-w-xs rounded-lg bg-gradient-to-r from-brand-indigo to-brand-cyan px-8 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg hover:brightness-110"
-                  >
-                    Done
-                  </button>
-                </div>
-              )}
-            </div>
-            )}
+                )}
+              </div>
+              );
+            })()}
           </motion.div>
         </motion.div>
       )}
