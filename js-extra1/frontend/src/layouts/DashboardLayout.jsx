@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, Home } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import ThemeToggle from "../components/common/ThemeToggle";
 import NotificationCenter from "../features/notifications/NotificationCenter";
@@ -49,6 +49,15 @@ const DashboardLayout = ({ role }) => {
           </span>
         </div>
         <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+          <button
+            type="button"
+            onClick={() => navigate(ROUTES.HOME)}
+            aria-label="Go to home page"
+            title="Home"
+            className="rounded-xl border border-slate-300/70 bg-white/70 p-2 text-slate-700 transition hover:-translate-y-0.5 hover:shadow-soft dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
+          >
+            <Home size={18} />
+          </button>
           <ThemeToggle />
           <button
             type="button"

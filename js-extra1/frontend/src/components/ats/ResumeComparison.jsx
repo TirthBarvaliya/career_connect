@@ -60,42 +60,27 @@ const ResumeComparison = ({ enhancedResume, originalPdfUrl, downloadActionRef })
         return;
       }
 
-      const html2pdf = (await import("html2pdf.js")).default;
-
-      // Create an off-screen container with the rendered HTML
-      const container = document.createElement("div");
-      container.innerHTML = htmlContent;
-      container.style.position = "fixed";
-      container.style.left = "-9999px";
-      container.style.top = "0";
-      container.style.width = "794px"; // A4 width in pixels at 96 DPI
-      container.style.background = "#fff";
-      document.body.appendChild(container);
-
       const safeName = (enhancedResume?.fullName || "Enhanced")
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
 
-      await html2pdf()
-        .set({
-          margin:       [6, 6, 6, 6],
-          filename:     `${safeName || "enhanced"}-resume.pdf`,
-          image:        { type: "jpeg", quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
-          jsPDF:        { unit: "mm", format: "a4", orientation: "portrait" },
-          pagebreak:    { mode: ["avoid-all", "css", "legacy"] }
-        })
-        .from(container)
-        .save();
+      // Send the perfectly rendered ATS resume HTML to Puppeteer on the backend
+      const response = await apiClient.post("/resume/export-pdf", {
+        html: htmlContent
+      }, { responseType: "blob" });
 
-      // Clean up off-screen container
-      document.body.removeChild(container);
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName || "enhanced"}-resume.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
 
       dispatch(addToast({ type: "success", message: "PDF downloaded successfully!" }));
     } catch (error) {
       console.error("PDF export error:", error);
-      dispatch(addToast({ type: "error", message: "Failed to generate PDF. Please try again." }));
+      dispatch(addToast({ type: "error", message: "Failed to generate PDF on server. Please try again." }));
     } finally {
       setIsExporting(false);
     }

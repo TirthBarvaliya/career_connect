@@ -12,7 +12,7 @@ const careerTrendCacheSchema = new mongoose.Schema(
         source: { type: String, default: "adzuna" }
       }
     ],
-    // When this was generated
+    // When this was generated 
     generatedAt: { type: Date, default: Date.now },
     // TTL — auto-delete after this time
     expiresAt: { type: Date, required: true, index: { expires: 0 } }
