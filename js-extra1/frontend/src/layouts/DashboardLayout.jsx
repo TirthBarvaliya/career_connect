@@ -2,7 +2,6 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { LogOut, Menu, Home } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import ThemeToggle from "../components/common/ThemeToggle";
-import NotificationCenter from "../features/notifications/NotificationCenter";
 import { setSidebarOpen } from "../redux/slices/uiSlice";
 import { logout } from "../redux/slices/authSlice";
 import { ROUTES } from "../utils/constants";
@@ -77,10 +76,6 @@ const DashboardLayout = ({ role }) => {
 
       <div className="min-w-0">
         <Outlet />
-      </div>
-
-      <div className="mt-5 hidden 2xl:block">
-        <NotificationCenter />
       </div>
     </div>
   );
