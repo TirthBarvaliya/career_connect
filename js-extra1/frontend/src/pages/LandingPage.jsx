@@ -511,7 +511,7 @@ const LandingPage = () => {
           <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-12">
 
             {/* LEFT SIDE: Text & CTA */}
-            <div className="max-w-xl">
+            <div className="max-w-xl text-center lg:text-left">
               <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-indigo to-brand-cyan text-white shadow-glow">
                 <Bot size={24} />
               </div>
@@ -521,7 +521,7 @@ const LandingPage = () => {
               <p className="mt-3 text-base text-slate-600 sm:mt-4 sm:text-lg dark:text-slate-300">
                 Practice interviews with our Free AI Interview Coach. Select your domain, face technical questions, and get instant feedback to sharpen your skills.
               </p>
-              <div className="mt-6 sm:mt-8">
+              <div className="mt-6 flex justify-center sm:mt-8 lg:justify-start">
                 <GradientButton onClick={() => startInterview(PREP_DOMAINS[prepIndex].id)}>
                   Practice Now
                 </GradientButton>
@@ -531,24 +531,7 @@ const LandingPage = () => {
             {/* RIGHT SIDE: Stacked Card Deck Carousel */}
             <div className="relative flex w-full flex-col items-center">
 
-              {/* Navigation Arrows — right-aligned on all views, absolute top-right on lg */}
-              <div className="relative z-30 mb-4 flex w-full items-center justify-end gap-3 lg:absolute lg:right-2 lg:top-0 lg:mb-0 lg:w-auto">
-                <button
-                  onClick={() => handlePrepNavigation("prev")}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/40 bg-white/80 text-slate-600 shadow-md backdrop-blur-xl transition-all active:scale-95 active:bg-brand-indigo/20 hover:scale-110 hover:border-brand-cyan/40 hover:text-brand-indigo dark:border-white/15 dark:bg-slate-800/70 dark:text-white/70 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-brand-cyan/20 sm:h-11 sm:w-11"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={() => handlePrepNavigation("next")}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/40 bg-white/80 text-slate-600 shadow-md backdrop-blur-xl transition-all active:scale-95 active:bg-brand-indigo/20 hover:scale-110 hover:border-brand-cyan/40 hover:text-brand-indigo dark:border-white/15 dark:bg-slate-800/70 dark:text-white/70 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-brand-cyan/20 sm:h-11 sm:w-11"
-                  aria-label="Next domain"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-
-              <div className="relative flex h-[320px] w-[min(100%,300px)] items-center justify-center sm:h-[360px] sm:w-[min(100%,340px)] md:h-[400px] md:w-[min(100%,360px)] lg:mt-8 lg:h-[400px] lg:w-[min(100%,340px)]">
+              <div className="relative flex h-[280px] w-[min(100%,260px)] items-center justify-center sm:h-[360px] sm:w-[min(100%,340px)] md:h-[400px] md:w-[min(100%,360px)] lg:h-[400px] lg:w-[min(100%,340px)]">
                 {PREP_DOMAINS.map((domain, i) => {
                   let stackPos = i - prepIndex;
                   if (stackPos > Math.floor(PREP_DOMAINS.length / 2)) stackPos -= PREP_DOMAINS.length;
@@ -579,7 +562,7 @@ const LandingPage = () => {
                         damping: 28,
                         mass: 0.8,
                       }}
-                      className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-3xl border p-4 sm:p-6 ${isActive
+                      className={`absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl border p-3 sm:rounded-3xl sm:p-6 ${isActive
                         ? `${domain.border} bg-slate-900/80 shadow-[0_12px_50px_rgba(99,102,241,0.3),0_4px_20px_rgba(0,0,0,0.6)]`
                         : "border-white/[0.08] bg-slate-900/60 shadow-[0_6px_30px_rgba(0,0,0,0.5)]"
                         }`}
@@ -612,10 +595,10 @@ const LandingPage = () => {
                       )}
 
                       {/* Bottom overlay with title + button */}
-                      <div className="relative z-10 mt-auto flex flex-col items-center gap-3 text-center sm:gap-4">
+                      <div className="relative z-10 mt-auto flex flex-col items-center gap-2 text-center sm:gap-4">
                         <div>
                           <h3
-                            className={`font-poppins text-lg font-bold drop-shadow-lg transition-colors duration-300 sm:text-xl ${isActive ? "text-white" : "text-white/70"
+                            className={`font-poppins text-base font-bold drop-shadow-lg transition-colors duration-300 sm:text-xl ${isActive ? "text-white" : "text-white/70"
                               }`}
                           >
                             {domain.title}
@@ -631,7 +614,7 @@ const LandingPage = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.15, duration: 0.3 }}
                             onClick={() => startInterview(domain.id)}
-                            className="relative inline-flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-brand-indigo via-brand-cyan to-brand-purple px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition duration-300 hover:scale-[1.03] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo sm:px-5 sm:py-3 sm:text-base"
+                            className="relative inline-flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-brand-indigo via-brand-cyan to-brand-purple px-3 py-2 text-xs font-semibold text-white shadow-glow transition duration-300 hover:scale-[1.03] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-indigo sm:px-5 sm:py-3 sm:text-base"
                           >
                             Practice Interview
                           </motion.button>
@@ -640,6 +623,24 @@ const LandingPage = () => {
                     </motion.div>
                   );
                 })}
+              </div>
+
+              {/* Navigation Arrows — centered below card deck */}
+              <div className="relative z-30 mt-5 flex items-center justify-center gap-4 sm:mt-6">
+                <button
+                  onClick={() => handlePrepNavigation("prev")}
+                  aria-label="Previous domain"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/40 bg-white/80 text-slate-600 shadow-md backdrop-blur-xl transition-all active:scale-95 active:bg-brand-indigo/20 hover:scale-110 hover:border-brand-cyan/40 hover:text-brand-indigo dark:border-white/15 dark:bg-slate-800/70 dark:text-white/70 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-brand-cyan/20 sm:h-11 sm:w-11"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => handlePrepNavigation("next")}
+                  aria-label="Next domain"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/40 bg-white/80 text-slate-600 shadow-md backdrop-blur-xl transition-all active:scale-95 active:bg-brand-indigo/20 hover:scale-110 hover:border-brand-cyan/40 hover:text-brand-indigo dark:border-white/15 dark:bg-slate-800/70 dark:text-white/70 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-brand-cyan/20 sm:h-11 sm:w-11"
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
             </div>
 
