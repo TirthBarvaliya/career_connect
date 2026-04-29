@@ -1,12 +1,37 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { LogOut, Home, Bell, X } from "lucide-react";
+import { LogOut, Home, Bell, X, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import ThemeToggle from "../components/common/ThemeToggle";
 import { logout } from "../redux/slices/authSlice";
-import { dismissNotification } from "../redux/slices/uiSlice";
+import { setNotifications, markAllNotificationsRead, dismissNotification } from "../redux/slices/uiSlice";
 import { ROUTES } from "../utils/constants";
+import apiClient from "../utils/api";
+
+const POLL_INTERVAL = 30_000; // 30 seconds
+
+const NOTIF_ICONS = {
+  new_user: "👤",
+  new_job: "💼",
+  user_blocked: "🚫",
+  user_unblocked: "✅",
+  user_deleted: "🗑️",
+  job_deleted: "🗑️",
+  job_flagged: "🚩"
+};
+
+const formatTimeAgo = (dateStr) => {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString();
+};
 
 const AdminLayout = () => {
   const dispatch = useDispatch();
@@ -17,6 +42,43 @@ const AdminLayout = () => {
 
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef(null);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  // Fetch notifications from backend
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const { data } = await apiClient.get("/admin/notifications");
+      dispatch(setNotifications(data.notifications || []));
+    } catch {
+      // Silently fail — bell just shows 0
+    }
+  }, [dispatch]);
+
+  // Fetch on mount + poll every 30s
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  // Mark all read when bell opens
+  const handleBellOpen = useCallback(async () => {
+    setBellOpen((prev) => {
+      const opening = !prev;
+      if (opening && unreadCount > 0) {
+        dispatch(markAllNotificationsRead());
+        apiClient.patch("/admin/notifications/read").catch(() => {});
+      }
+      return opening;
+    });
+  }, [dispatch, unreadCount]);
+
+  // Delete a notification
+  const handleDismiss = useCallback(async (id) => {
+    dispatch(dismissNotification(id));
+    apiClient.delete(`/admin/notifications/${id}`).catch(() => {});
+  }, [dispatch]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -69,15 +131,15 @@ const AdminLayout = () => {
           <div className="relative" ref={bellRef}>
             <button
               type="button"
-              onClick={() => setBellOpen((prev) => !prev)}
+              onClick={handleBellOpen}
               aria-label="Notifications"
               title="Notifications"
               className={btnClass}
             >
               <Bell size={18} />
-              {notifications.length > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
-                  {notifications.length}
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white animate-pulse">
+                  {unreadCount}
                 </span>
               )}
             </button>
@@ -97,28 +159,47 @@ const AdminLayout = () => {
                       <Bell size={15} />
                       Notifications
                     </h4>
-                    <span className="rounded-full bg-brand-indigo/10 px-2 py-0.5 text-[11px] font-medium text-brand-indigo dark:bg-brand-indigo/20">
-                      {notifications.length}
-                    </span>
+                    {notifications.length > 0 && (
+                      <span className="rounded-full bg-brand-indigo/10 px-2 py-0.5 text-[11px] font-medium text-brand-indigo dark:bg-brand-indigo/20">
+                        {notifications.length}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="max-h-64 space-y-2 overflow-y-auto">
+                  <div className="max-h-72 space-y-2 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <p className="py-4 text-center text-xs text-slate-400 dark:text-slate-500">
-                        All caught up. No new notifications.
-                      </p>
+                      <div className="flex flex-col items-center gap-2 py-6">
+                        <Check size={24} className="text-emerald-400" />
+                        <p className="text-xs text-slate-400 dark:text-slate-500">
+                          All caught up. No new notifications.
+                        </p>
+                      </div>
                     ) : (
                       notifications.map((n) => (
                         <div
                           key={n.id}
-                          className="flex items-start justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50/80 p-2.5 dark:border-slate-700/60 dark:bg-slate-800/60"
+                          className={`flex items-start justify-between gap-2 rounded-lg border p-2.5 transition ${
+                            n.isRead
+                              ? "border-slate-100 bg-slate-50/80 dark:border-slate-700/60 dark:bg-slate-800/60"
+                              : "border-indigo-200 bg-indigo-50/60 dark:border-indigo-800/50 dark:bg-indigo-950/30"
+                          }`}
                         >
-                          <p className="text-xs text-slate-700 dark:text-slate-200">
-                            {n.message}
-                          </p>
+                          <div className="flex gap-2">
+                            <span className="mt-0.5 text-base leading-none">
+                              {NOTIF_ICONS[n.type] || "🔔"}
+                            </span>
+                            <div>
+                              <p className="text-xs text-slate-700 dark:text-slate-200">
+                                {n.message}
+                              </p>
+                              <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+                                {formatTimeAgo(n.createdAt)}
+                              </p>
+                            </div>
+                          </div>
                           <button
                             type="button"
-                            onClick={() => dispatch(dismissNotification(n.id))}
+                            onClick={() => handleDismiss(n.id)}
                             className="shrink-0 rounded-md p-0.5 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
                           >
                             <X size={13} />
@@ -157,3 +238,4 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
+

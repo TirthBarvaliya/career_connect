@@ -29,6 +29,12 @@ const uiSlice = createSlice({
     removeToast: (state, action) => {
       state.toasts = state.toasts.filter((toast) => toast.id !== action.payload);
     },
+    setNotifications: (state, action) => {
+      state.notifications = action.payload;
+    },
+    markAllNotificationsRead: (state) => {
+      state.notifications = state.notifications.map((n) => ({ ...n, isRead: true }));
+    },
     dismissNotification: (state, action) => {
       state.notifications = state.notifications.filter((notification) => notification.id !== action.payload);
     },
@@ -43,7 +49,10 @@ export const {
   setTheme,
   addToast,
   removeToast,
+  setNotifications,
+  markAllNotificationsRead,
   dismissNotification,
   setSidebarOpen
 } = uiSlice.actions;
 export default uiSlice.reducer;
+

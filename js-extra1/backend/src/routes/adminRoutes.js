@@ -10,6 +10,11 @@ import {
   deleteJob,
   flagJob
 } from "../controllers/adminController.js";
+import {
+  getNotifications,
+  markAllRead,
+  deleteNotification
+} from "../controllers/notificationController.js";
 
 const router = Router();
 
@@ -30,4 +35,10 @@ router.get("/jobs", getJobs);
 router.delete("/jobs/:id", deleteJob);
 router.patch("/jobs/:id/flag", flagJob);
 
+// Notifications
+router.get("/notifications", getNotifications);
+router.patch("/notifications/read", markAllRead);
+router.delete("/notifications/:id", deleteNotification);
+
 export default router;
+

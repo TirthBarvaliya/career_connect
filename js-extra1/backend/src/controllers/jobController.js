@@ -7,6 +7,7 @@ import Transaction from "../models/Transaction.js";
 import { mapJobForClient } from "../utils/jobFormatter.js";
 import calculateMatch from "../utils/calculateMatch.js";
 import sendDecisionEmail, { sendInterviewEmail } from "../utils/sendMail.js";
+import Notification from "../models/Notification.js";
 import { FREE_POST_LIMIT } from "./creditController.js";
 
 const WITHDRAWABLE_APPLICATION_STATUSES = new Set(["Applied", "Review", "Shortlisted", "Interviewing"]);
@@ -202,6 +203,8 @@ export const createJob = asyncHandler(async (req, res) => {
     });
   }
   // ─────────────────────────────────────────────────────────────────────────
+
+  Notification.create({ type: "new_job", message: `${company} posted "${title}"`, meta: { jobId: String(job._id) } }).catch(() => {});
 
   return res.status(201).json({
     message: usedFreePost

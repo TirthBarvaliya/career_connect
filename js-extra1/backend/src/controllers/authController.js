@@ -6,6 +6,7 @@ import { normalizeRole, ROLE_JOBSEEKER, ROLE_RECRUITER } from "../utils/roles.js
 import config from "../config/env.js";
 import { OAuth2Client } from "google-auth-library";
 import sendWelcomeEmail from "../utils/welcomeEmail.js";
+import Notification from "../models/Notification.js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const FULL_NAME_REGEX = /^[A-Za-z][A-Za-z\s'.-]{1,79}$/;
@@ -155,6 +156,7 @@ export const register = asyncHandler(async (req, res) => {
   });
 
   triggerWelcomeEmail(user);
+  Notification.create({ type: "new_user", message: `${user.name} joined as ${normalizeRole(user.role)}`, meta: { userId: String(user._id) } }).catch(() => {});
 
   return res.status(201).json({
     token: generateToken(user._id),
@@ -305,6 +307,7 @@ export const googleRegister = asyncHandler(async (req, res) => {
   });
 
   triggerWelcomeEmail(user);
+  Notification.create({ type: "new_user", message: `${user.name} joined via Google as ${normalizeRole(user.role)}`, meta: { userId: String(user._id) } }).catch(() => {});
 
   return res.status(201).json({ token: generateToken(user._id), user: sanitizeUser(user) });
 });

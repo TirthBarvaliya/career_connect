@@ -2,6 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/User.js";
 import Job from "../models/Job.js";
 import Application from "../models/Application.js";
+import Notification from "../models/Notification.js";
 import { normalizeRole, ROLE_RECRUITER, ROLE_JOBSEEKER, ROLE_ADMIN } from "../utils/roles.js";
 
 // ── GET /admin/stats ──
@@ -77,6 +78,7 @@ export const blockUser = asyncHandler(async (req, res) => {
 
   user.status = "blocked";
   await user.save();
+  Notification.create({ type: "user_blocked", message: `User "${user.name}" has been blocked`, meta: { userId: String(user._id) } }).catch(() => {});
   return res.status(200).json({ message: `User "${user.name}" has been blocked.` });
 });
 
@@ -87,6 +89,7 @@ export const unblockUser = asyncHandler(async (req, res) => {
 
   user.status = "active";
   await user.save();
+  Notification.create({ type: "user_unblocked", message: `User "${user.name}" has been unblocked`, meta: { userId: String(user._id) } }).catch(() => {});
   return res.status(200).json({ message: `User "${user.name}" has been unblocked.` });
 });
 
@@ -106,6 +109,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
     User.findByIdAndDelete(user._id)
   ]);
 
+  Notification.create({ type: "user_deleted", message: `User "${user.name}" and associated data deleted`, meta: { userName: user.name } }).catch(() => {});
   return res.status(200).json({ message: `User "${user.name}" and associated data deleted.` });
 });
 
@@ -165,6 +169,7 @@ export const deleteJob = asyncHandler(async (req, res) => {
     Job.findByIdAndDelete(job._id)
   ]);
 
+  Notification.create({ type: "job_deleted", message: `Job "${job.title}" and its applications deleted`, meta: { jobTitle: job.title } }).catch(() => {});
   return res.status(200).json({ message: `Job "${job.title}" and its applications deleted.` });
 });
 
@@ -175,6 +180,7 @@ export const flagJob = asyncHandler(async (req, res) => {
 
   job.status = job.status === "flagged" ? "active" : "flagged";
   await job.save();
+  Notification.create({ type: "job_flagged", message: `Job "${job.title}" ${job.status === "flagged" ? "flagged" : "unflagged"}`, meta: { jobId: String(job._id) } }).catch(() => {});
   return res.status(200).json({
     message: job.status === "flagged" ? `Job "${job.title}" flagged.` : `Job "${job.title}" unflagged.`,
     status: job.status
