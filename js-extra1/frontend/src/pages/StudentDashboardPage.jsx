@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { BriefcaseBusiness, Bookmark, Send, FileBadge2, XCircle } from "lucide-react";
+import { BriefcaseBusiness, Bookmark, Send, FileBadge2, XCircle, Video, Calendar, Clock, ExternalLink } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
@@ -105,6 +105,35 @@ const StudentDashboardPage = () => {
         .slice(0, 6),
     [appliedApplications]
   );
+  // ── Upcoming interview detection ──
+  const upcomingInterview = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return (appliedApplications || [])
+      .filter((app) => {
+        const s = app.status;
+        return (s === "Interview Scheduled" || s === "Interviewing") && app.interview?.date;
+      })
+      .map((app) => ({ ...app, _interviewDate: new Date(app.interview.date) }))
+      .filter((app) => app._interviewDate >= today)
+      .sort((a, b) => a._interviewDate - b._interviewDate)[0] || null;
+  }, [appliedApplications]);
+
+  const formatInterviewCountdown = (dateStr) => {
+    const target = new Date(dateStr);
+    const now = new Date();
+    const diff = target - now;
+    if (diff < 0) return "Now";
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    if (days > 1) return `in ${days} days`;
+    if (days === 1) return "Tomorrow";
+    if (hours >= 1) return `in ${hours}h`;
+    const mins = Math.floor(diff / (1000 * 60));
+    if (mins > 0) return `in ${mins}m`;
+    return "Starting soon";
+  };
+
   const roadmap = dashboard?.roadmap || {};
   const timeline = buildTimelineFromRoadmap(roadmap, stats.roadmapProgress);
   const roadmapSubtitle = roadmap?.selectedPathTitle
@@ -166,6 +195,63 @@ const StudentDashboardPage = () => {
           <p className="mt-1.5 text-2xl font-bold text-slate-900 dark:text-white">{stats.appliedJobs}</p>
         </GlassCard>
       </div>
+
+      {/* ── Upcoming Interview Banner ── */}
+      {upcomingInterview && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-purple-300/60 bg-gradient-to-r from-purple-50 via-indigo-50 to-cyan-50 p-4 shadow-sm dark:border-purple-700/50 dark:from-purple-950/40 dark:via-indigo-950/40 dark:to-cyan-950/40"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/60 dark:text-purple-300">
+                <Video size={20} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">Upcoming Interview</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 truncate">
+                  {upcomingInterview.job?.title || "Job"} at {upcomingInterview.job?.company || "Company"}
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-purple-100 px-2.5 py-1 text-xs font-bold text-purple-700 dark:bg-purple-900/50 dark:text-purple-200">
+              {formatInterviewCountdown(upcomingInterview.interview.date)}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-[52px] text-xs text-slate-600 dark:text-slate-300">
+            <span className="inline-flex items-center gap-1">
+              <Calendar size={12} className="text-purple-500" />
+              {new Date(upcomingInterview.interview.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Clock size={12} className="text-purple-500" />
+              {new Date(upcomingInterview.interview.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
+            </span>
+            <span className="inline-flex items-center gap-1 capitalize">
+              📍 {upcomingInterview.interview.mode || "Online"}
+            </span>
+          </div>
+          {upcomingInterview.interview.meetingLink && (
+            <div className="mt-3 pl-[52px]">
+              <a
+                href={upcomingInterview.interview.meetingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-indigo to-brand-cyan px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:opacity-90 hover:shadow-md"
+              >
+                <ExternalLink size={13} />
+                Join Interview
+              </a>
+            </div>
+          )}
+          {upcomingInterview.interview.notes && (
+            <p className="mt-2 pl-[52px] text-[11px] text-slate-500 dark:text-slate-400 italic">
+              Note: {upcomingInterview.interview.notes}
+            </p>
+          )}
+        </motion.div>
+      )}
 
       {/* ── Main 2-Column Layout ── */}
       <div className="grid gap-4 xl:grid-cols-[2fr_1fr] items-stretch">
@@ -253,21 +339,47 @@ const StudentDashboardPage = () => {
                           ? ` • Applied on ${new Date(application.appliedAt).toLocaleDateString()}`
                           : ""}
                       </p>
+                      {(application.status === "Interview Scheduled" || application.status === "Interviewing") && application.interview?.date && (
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-purple-600 dark:text-purple-300">
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar size={11} />
+                            {new Date(application.interview.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock size={11} />
+                            {new Date(application.interview.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
+                          </span>
+                          <span className="capitalize">• {application.interview.mode || "Online"}</span>
+                        </div>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      disabled={!application.canWithdraw}
-                      onClick={async () => {
-                        if (!application.job?.id && !application.job?._id) return;
-                        setApplicationToDrop(application);
-                      }}
-                      className="rounded-xl border border-rose-300/70 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-700/60 dark:bg-rose-900/25 dark:text-rose-200"
-                    >
-                      <span className="inline-flex items-center gap-1">
-                        <XCircle size={13} />
-                        {application.canWithdraw ? "Drop Application" : "Locked"}
-                      </span>
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {(application.status === "Interview Scheduled" || application.status === "Interviewing") && application.interview?.meetingLink && (
+                        <a
+                          href={application.interview.meetingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-brand-indigo to-brand-cyan px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:opacity-90"
+                        >
+                          <Video size={13} />
+                          Join
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        disabled={!application.canWithdraw}
+                        onClick={async () => {
+                          if (!application.job?.id && !application.job?._id) return;
+                          setApplicationToDrop(application);
+                        }}
+                        className="rounded-xl border border-rose-300/70 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-700/60 dark:bg-rose-900/25 dark:text-rose-200"
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          <XCircle size={13} />
+                          {application.canWithdraw ? "Drop Application" : "Locked"}
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
